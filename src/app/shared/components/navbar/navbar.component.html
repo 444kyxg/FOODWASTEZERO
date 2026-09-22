@@ -1,0 +1,24 @@
+<header class="navbar">
+  <a routerLink="/" class="brand" (click)="closeMenu()">
+    <span class="brand-mark">FW</span>
+    <span>Food Waste <b>Zero</b></span>
+  </a>
+
+  <button class="menu-button" (click)="toggleMenu()" aria-label="Abrir menu">☰</button>
+
+  <nav [class.open]="menuOpen">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="closeMenu()">Início</a>
+    <a routerLink="/alimentos" routerLinkActive="active" (click)="closeMenu()">Alimentos</a>
+    <a routerLink="/ongs" routerLinkActive="active" (click)="closeMenu()">ONGs</a>
+    <a routerLink="/comunidade" routerLinkActive="active" (click)="closeMenu()">Comunidade</a>
+
+    <ng-container *ngIf="auth.isAuthenticated(); else loginLink">
+      <a routerLink="/painel" routerLinkActive="active" (click)="closeMenu()">Meu painel</a>
+      <button class="logout" (click)="auth.logout(); closeMenu()">Sair</button>
+    </ng-container>
+
+    <ng-template #loginLink>
+      <a routerLink="/login" class="login-link" (click)="closeMenu()">Entrar</a>
+    </ng-template>
+  </nav>
+</header>
