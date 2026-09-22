@@ -1,76 +1,54 @@
-<section class="hero">
-  <div class="hero-copy">
-    <span class="eyebrow">SALVADOR · BAHIA</span>
-    <h1>Comida boa não é lixo.</h1>
-    <p>O Food Waste Zero conecta estabelecimentos, ONGs e pessoas para reduzir o desperdício e transformar excedentes em impacto.</p>
-    <div class="actions">
-      <a routerLink="/alimentos" class="btn primary">Encontrar alimentos</a>
-      <a routerLink="/cadastro" class="btn secondary">Quero participar</a>
+<section class="hero-section">
+  <div class="hero-content">
+    <span class="eyebrow">RESGATE & IMPACTO SOCIAL</span>
+    <h1>Salve comida boa, ajude quem precisa.</h1>
+    <p>Conectamos estabelecimentos a pessoas e ONGs para combater o desperdício em Salvador.</p>
+    <div class="hero-buttons">
+      <a routerLink="/alimentos" class="btn btn-primary">Ver Alimentos</a>
+      <a routerLink="/cadastro" class="btn btn-secondary">Quero Cadastrar</a>
     </div>
-    <div class="mini-impact">
-      <div><strong>3.800 kg</strong><span>salvos do descarte*</span></div>
-      <div><strong>430</strong><span>lotes conectados*</span></div>
-    </div>
-  </div>
-  <div class="hero-art">
-    <div class="circle"></div>
-    <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1000&q=85" alt="Alimentos frescos">
-    <div class="floating-card"><span>♻</span><div><b>Menos desperdício</b><small>Mais impacto local</small></div></div>
   </div>
 </section>
 
 <section class="carousel-section">
   <div class="section-heading">
-    <div><span class="eyebrow">AGORA EM DESTAQUE</span><h2>O que está acontecendo</h2></div>
-    <div class="carousel-controls"><button (click)="previous()">←</button><button (click)="next()">→</button></div>
+    <div>
+      <span class="eyebrow">DESTAQUES</span>
+      <h2>Em foco hoje</h2>
+    </div>
+    <div class="carousel-nav">
+      <button (click)="previous()" class="nav-btn">&larr;</button>
+      <button (click)="next()" class="nav-btn">&rarr;</button>
+    </div>
   </div>
 
-  <article class="hero-slide" [style.background-image]="'linear-gradient(90deg, rgba(14,31,19,.88), rgba(14,31,19,.35)), url(' + slides[slideIndex].imagem + ')'">
-    <div class="slide-content">
-      <span>{{ slides[slideIndex].tipo }}</span>
-      <h3>{{ slides[slideIndex].titulo }}</h3>
-      <p>{{ slides[slideIndex].texto }}</p>
-      <a class="slide-link" [routerLink]="slides[slideIndex].link">Saiba mais →</a>
-    </div>
+  <article class="hero-slide" [style.background-image]="'linear-gradient(90deg, rgba(14,21,15,.85), rgba(14,21,15,.3)), url(' + slides[slideIndex].imagem + ')'">
+    <span class="slide-tag">{{ slides[slideIndex].tipo }}</span>
+    <h3>{{ slides[slideIndex].titulo }}</h3>
+    <p>{{ slides[slideIndex].texto }}</p>
+    <a [routerLink]="slides[slideIndex].link" class="slide-link">Saiba mais &rarr;</a>
   </article>
 
   <div class="dots">
-    <button *ngFor="let slide of slides; let i = index" [class.active]="i === slideIndex" (click)="goTo(i)" [attr.aria-label]="'Slide ' + (i + 1)"></button>
+    <span 
+      *ngFor="let slide of slides; let i = index" 
+      class="dot" 
+      [class.active]="i === slideIndex" 
+      (click)="goTo(i)">
+    </span>
   </div>
 </section>
 
-<section class="section">
+<section class="rescue-section">
   <div class="section-heading">
-    <div><span class="eyebrow">PERTO DE VOCÊ</span><h2>Alimentos disponíveis</h2></div>
-    <a routerLink="/alimentos" class="see-all">Ver todos →</a>
+    <div>
+      <span class="eyebrow">RESGATE AGORA</span>
+      <h2>Lotes disponíveis perto de você</h2>
+    </div>
+    <a routerLink="/alimentos" class="see-all">Ver todos &rarr;</a>
   </div>
+
   <div class="food-grid">
-    <app-food-card *ngFor="let alimento of alimentos.slice(0, 3)" [alimento]="alimento" />
+    <app-food-card *ngFor="let alimento of alimentos | slice:0:3" [alimento]="alimento" />
   </div>
 </section>
-
-<section class="impact">
-  <div><span class="eyebrow">IMPACTO EM SALVADOR</span><h2>Cada conexão conta.</h2><p>Os números abaixo são demonstrativos para a apresentação do projeto.</p></div>
-  <div class="numbers">
-    <div><strong>1.250</strong><span>refeições possibilitadas</span></div>
-    <div><strong>430</strong><span>lotes conectados</span></div>
-    <div><strong>3.800 kg</strong><span>de alimentos salvos</span></div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="section-heading">
-    <div><span class="eyebrow">REDE DE APOIO</span><h2>ONGs parceiras</h2></div>
-    <a routerLink="/ongs" class="see-all">Conhecer ONGs →</a>
-  </div>
-  <div class="ong-grid">
-    <app-ong-card *ngFor="let ong of ongs.slice(0, 3)" [ong]="ong" />
-  </div>
-</section>
-
-<section class="cta">
-  <div><span class="eyebrow">FAÇA PARTE</span><h2>Tem excedente? Tem fome? <br>Tem como ajudar.</h2></div>
-  <a routerLink="/cadastro" class="btn light">Criar minha conta →</a>
-</section>
-
-<p class="disclaimer">* Dados meramente demonstrativos para fins acadêmicos.</p>

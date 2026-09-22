@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { Usuario } from '../models/usuario.model';
 
@@ -7,6 +7,11 @@ const SESSION_KEY = 'fwz_usuario';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  usuario = signal<Usuario | null>(this.getCurrentUser());
+
+  estaLogado = computed(() => this.usuario() !== null);
+  tipoUsuario = computed(() => this.usuario()?.tipo || null);
+
   constructor(private router: Router) {}
 
   cadastrar(usuario: Omit<Usuario, 'id'> & { senha: string }): boolean {
@@ -23,6 +28,7 @@ export class AuthService {
 
     localStorage.setItem(USERS_KEY, JSON.stringify([...usuarios, novo]));
     localStorage.setItem(SESSION_KEY, JSON.stringify(novo));
+    this.usuario.set(novo);
     return true;
   }
 
@@ -33,16 +39,18 @@ export class AuthService {
     if (!usuario) return false;
 
     localStorage.setItem(SESSION_KEY, JSON.stringify(usuario));
+    this.usuario.set(usuario);
     return true;
   }
 
   logout(): void {
     localStorage.removeItem(SESSION_KEY);
+    this.usuario.set(null);
     this.router.navigate(['/']);
   }
 
   isAuthenticated(): boolean {
-    return !!localStorage.getItem(SESSION_KEY);
+    return this.estaLogado();
   }
 
   getCurrentUser(): Usuario | null {
