@@ -34,6 +34,18 @@ import { AuthService } from '../../core/services/auth.service';
           </select>
         </label>
 
+              @if (tipo === 'estabelecimento' || tipo === 'ong') {
+        <label>CNPJ
+          <input
+            type="text"
+            name="cnpj"
+            [(ngModel)]="cnpj"
+            placeholder="00.000.000/0000-00"
+            required
+          >
+        </label>
+      }
+
         <label>Senha
           <input type="password" name="senha" [(ngModel)]="senha" minlength="6" required>
         </label>
@@ -60,6 +72,7 @@ export class CadastroComponent {
   senha = '';
   tipo: 'consumidor' | 'estabelecimento' | 'ong' = 'consumidor';
   lgpd = false;
+  cnpj = '';
   error = '';
 
   constructor(private auth: AuthService, private router: Router) {}
@@ -79,7 +92,8 @@ export class CadastroComponent {
       nome: this.nome,
       email: this.email,
       senha: this.senha,
-      tipo: this.tipo
+      tipo: this.tipo,
+      cnpj: this.cnpj
     });
 
     if (!created) {

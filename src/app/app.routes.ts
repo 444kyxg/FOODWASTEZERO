@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { guestGuard } from './core/guards/guest.guard';
 
 export const routes: Routes = [
   {
@@ -12,6 +13,7 @@ export const routes: Routes = [
   },
   {
     path: 'cadastro',
+    canActivate: [guestGuard],
     loadComponent: () => import('./pages/cadastro/cadastro.component').then(m => m.CadastroComponent)
   },
   {

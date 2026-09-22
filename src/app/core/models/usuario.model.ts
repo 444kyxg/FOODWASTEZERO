@@ -3,4 +3,5 @@ export interface Usuario {
   nome: string;
   email: string;
   tipo: 'consumidor' | 'estabelecimento' | 'ong';
+  cnpj?: string;
 }
