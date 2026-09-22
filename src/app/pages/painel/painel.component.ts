@@ -14,22 +14,18 @@ import { AuthService } from '../../core/services/auth.service';
       <p>Acompanhe sua participação na rede Food Waste Zero.</p>
 
       <div [ngSwitch]="user()?.tipo" class="cards">
-        
-        <!-- Visão da ONG -->
         <ng-container *ngSwitchCase="'ong'">
           <div><span>Solicitações</span><b>12</b><small>lotes solicitados</small></div>
           <div><span>Impacto</span><b>148 kg</b><small>de alimentos salvos</small></div>
           <div><span>Parceiros</span><b>8</b><small>estabelecimentos conectados</small></div>
         </ng-container>
 
-        <!-- Visão do Consumidor -->
         <ng-container *ngSwitchCase="'consumidor'">
           <div><span>Conexões</span><b>12</b><small>lotes resgatados</small></div>
           <div><span>Impacto</span><b>38 kg</b><small>de alimentos salvos</small></div>
           <div><span>Comunidade</span><b>7</b><small>interações realizadas</small></div>
         </ng-container>
 
-        <!-- Visão do Estabelecimento -->
         <ng-container *ngSwitchCase="'estabelecimento'">
           <div><span>Anúncios</span><b>5</b><small>lotes ativos</small></div>
           <div><span>Doações</span><b>210 kg</b><small>doados para ONGs</small></div>
