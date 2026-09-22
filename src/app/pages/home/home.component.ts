@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NgFor, NgIf, DecimalPipe } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Alimento } from '../../core/models/alimento.model';
 import { Ong } from '../../core/models/ong.model';
@@ -13,7 +13,7 @@ interface Slide { tipo: string; titulo: string; texto: string; imagem: string; l
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [NgFor, NgIf, DecimalPipe, RouterLink, FoodCardComponent, OngCardComponent],
+  imports: [NgFor, NgIf, RouterLink, FoodCardComponent, OngCardComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })

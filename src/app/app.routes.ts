@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
+import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   {
@@ -33,6 +34,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/comunidade/comunidade.component').then(m => m.ComunidadeComponent)
   },
   {
+    path: 'politica-privacidade',
+    loadComponent: () => import('./pages/politica-privacidade/politica-privacidade.component').then(m => m.PoliticaPrivacidadeComponent)
+  },
+  {
     path: 'painel',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/painel/painel.component').then(m => m.PainelComponent)
@@ -43,8 +48,45 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/perfil/perfil.component').then(m => m.PerfilComponent)
   },
   {
-    path: 'politica-privacidade',
-    loadComponent: () => import('./pages/politica-privacidade/politica-privacidade.component').then(m => m.PoliticaPrivacidadeComponent)
+    path: 'ong',
+    canActivate: [authGuard, roleGuard(['ong'])],
+    children: [
+      {
+        path: 'lotes',
+        loadComponent: () => import('./pages/painel/painel.component').then(m => m.PainelComponent)
+      },
+      {
+        path: 'perfil',
+        loadComponent: () => import('./pages/perfil/perfil.component').then(m => m.PerfilComponent)
+      },
+      { path: '', redirectTo: 'lotes', pathMatch: 'full' }
+    ]
+  },
+  {
+    path: 'consumidor',
+    canActivate: [authGuard, roleGuard(['consumidor'])],
+    children: [
+      {
+        path: 'alimentos',
+        loadComponent: () => import('./pages/alimentos/alimentos.component').then(m => m.AlimentosComponent)
+      },
+      {
+        path: 'perfil',
+        loadComponent: () => import('./pages/perfil/perfil.component').then(m => m.PerfilComponent)
+      },
+      { path: '', redirectTo: 'alimentos', pathMatch: 'full' }
+    ]
+  },
+  {
+    path: 'estabelecimento',
+    canActivate: [authGuard, roleGuard(['estabelecimento'])],
+    children: [
+      {
+        path: 'perfil',
+        loadComponent: () => import('./pages/perfil/perfil.component').then(m => m.PerfilComponent)
+      },
+      { path: '', redirectTo: 'perfil', pathMatch: 'full' }
+    ]
   },
   {
     path: '**',
