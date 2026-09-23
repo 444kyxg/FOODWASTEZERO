@@ -6,6 +6,7 @@ import { Ong } from '../../core/models/ong.model';
 import { AlimentoService } from '../../core/services/alimento.service';
 import { OngService } from '../../core/services/ong.service';
 import { FoodCardComponent } from '../../shared/components/food-card/food-card.component';
+import { OngCardComponent } from '../../shared/components/ong-card/ong-card.component'; // 1. Adicionado o Import
 
 interface Slide {
   tipo: string;
@@ -18,7 +19,14 @@ interface Slide {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [NgFor, NgIf, SlicePipe, RouterLink, FoodCardComponent],
+  imports: [
+    NgFor, 
+    NgIf, 
+    SlicePipe, 
+    RouterLink, 
+    FoodCardComponent, 
+    OngCardComponent // 2. Adicionado no array de imports
+  ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
@@ -29,9 +37,9 @@ export class HomeComponent implements OnInit {
 
   slides: Slide[] = [
     {
-      tipo: 'DESTAQUE DO DIA',
-      titulo: 'Frutas boas por menos.',
-      texto: 'Cestas de frutas que perderiam espaço na prateleira estão disponíveis por R$ 12,90 na Pituba.',
+      tipo: 'AGORA EM DESTAQUE',
+      titulo: 'Comida boa não é lixo.',
+      texto: 'O Food Waste Zero conecta estabelecimentos, ONGs e pessoas para reduzir o desperdício.',
       imagem: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=1400&q=85',
       link: '/alimentos'
     },

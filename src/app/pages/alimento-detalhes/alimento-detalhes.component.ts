@@ -44,6 +44,11 @@ export class AlimentoDetalhesComponent implements OnInit {
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.service.getAlimentoById(id).subscribe(data => this.alimento = data);
+    const alimentoEncontrado = this.service.getAlimentoById(id);
+    if (alimentoEncontrado) {
+      this.alimento = alimentoEncontrado;
+    } else {
+      console.error('Alimento não encontrado com o ID:', id);
+    }
   }
 }
