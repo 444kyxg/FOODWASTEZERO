@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NgFor, NgIf, SlicePipe } from '@angular/common';
+import { NgFor} from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Alimento } from '../../core/models/alimento.model';
 import { Ong } from '../../core/models/ong.model';
@@ -21,8 +21,6 @@ interface Slide {
   standalone: true,
   imports: [
     NgFor, 
-    NgIf, 
-    SlicePipe, 
     RouterLink, 
     FoodCardComponent, 
     OngCardComponent // 2. Adicionado no array de imports
