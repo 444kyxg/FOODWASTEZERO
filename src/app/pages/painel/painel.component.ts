@@ -114,20 +114,56 @@ import { AlimentoService } from '../../core/services/alimento.service';
         </ng-container>
 
         <ng-container *ngSwitchCase="'estabelecimento'">
+          <div class="impact-card">
+            <span>Doações (Gratuito)</span>
+            <div class="impact-table">
+              <div class="impact-row">
+                <span class="lbl">Peso:</span>
+                <span class="val"><b>{{ metricasEstabelecimento().doacoes.kg }}</b> kg</span>
+              </div>
+              <div class="impact-row">
+                <span class="lbl">Qtd / Unid:</span>
+                <span class="val"><b>{{ metricasEstabelecimento().doacoes.unidades }}</b> un</span>
+              </div>
+              <div class="impact-row">
+                <span class="lbl">Caixas:</span>
+                <span class="val"><b>{{ metricasEstabelecimento().doacoes.caixas }}</b> cx</span>
+              </div>
+              <div class="impact-row">
+                <span class="lbl">Litros:</span>
+                <span class="val"><b>{{ metricasEstabelecimento().doacoes.litros }}</b> L</span>
+              </div>
+            </div>
+            <small>destinados a ONGs</small>
+          </div>
+
+          <div class="impact-card">
+            <span>Vendas com Desconto</span>
+            <div class="impact-table">
+              <div class="impact-row">
+                <span class="lbl">Peso:</span>
+                <span class="val"><b>{{ metricasEstabelecimento().descontos.kg }}</b> kg</span>
+              </div>
+              <div class="impact-row">
+                <span class="lbl">Qtd / Unid:</span>
+                <span class="val"><b>{{ metricasEstabelecimento().descontos.unidades }}</b> un</span>
+              </div>
+              <div class="impact-row">
+                <span class="lbl">Caixas:</span>
+                <span class="val"><b>{{ metricasEstabelecimento().descontos.caixas }}</b> cx</span>
+              </div>
+              <div class="impact-row">
+                <span class="lbl">Litros:</span>
+                <span class="val"><b>{{ metricasEstabelecimento().descontos.litros }}</b> L</span>
+              </div>
+            </div>
+            <small>comercializados com valor reduzido</small>
+          </div>
+
           <div>
-            <span>Anúncios</span>
+            <span>Resumo Geral</span>
             <b>{{ totalLotesAnunciados() }}</b>
-            <small>lotes ativos</small>
-          </div>
-          <div>
-            <span>Doações</span>
-            <b>{{ totalKgSalvos() }} kg</b>
-            <small>doados para ONGs</small>
-          </div>
-          <div>
-            <span>Economia</span>
-            <b>R$ {{ totalEconomiaEvitada() }}</b>
-            <small>evitados em descarte</small>
+            <small>lotes cadastrados no total</small>
           </div>
         </ng-container>
 
@@ -332,16 +368,13 @@ export class PainelComponent {
     });
   });
 
-  meusLotesDoados = computed(() => {
+  meusLotesCadastrados = computed(() => {
     const usuarioAtual = this.user();
     if (!usuarioAtual) return [];
 
     return (this.alimentos() || []).filter((item: any) => {
-      const pertenceAoEstabelecimento = 
-        item.estabelecimento === usuarioAtual.nome || 
-        String(item.estabelecimentoId) === String(usuarioAtual.id);
-
-      return pertenceAoEstabelecimento && item.temInteressado;
+      return item.estabelecimento === usuarioAtual.nome || 
+             String(item.estabelecimentoId) === String(usuarioAtual.id);
     });
   });
 
@@ -351,10 +384,31 @@ export class PainelComponent {
     const usuarioAtual = this.user();
     if (!usuarioAtual) return { kg: 0, unidades: 0, caixas: 0, litros: 0 };
 
-    const lista = usuarioAtual.tipo === 'estabelecimento' 
-      ? this.meusLotesDoados() 
-      : this.meusLotesResgatados();
+    return this.somarMetricas(this.meusLotesResgatados());
+  });
 
+  metricasEstabelecimento = computed(() => {
+    const todosDoEstabelecimento = this.meusLotesCadastrados();
+
+    const doacoes = todosDoEstabelecimento.filter((item: any) => {
+      const preco = parseFloat(item.preco) || 0;
+      const tipo = (item.tipo || item.categoria || '').toLowerCase();
+      return preco === 0 || item.gratuito || tipo.includes('doacao') || tipo.includes('doação');
+    });
+
+    const descontos = todosDoEstabelecimento.filter((item: any) => {
+      const preco = parseFloat(item.preco) || 0;
+      const tipo = (item.tipo || item.categoria || '').toLowerCase();
+      return preco > 0 && !item.gratuito && !tipo.includes('doacao') && !tipo.includes('doação');
+    });
+
+    return {
+      doacoes: this.somarMetricas(doacoes),
+      descontos: this.somarMetricas(descontos)
+    };
+  });
+
+  private somarMetricas(lista: any[]) {
     let kg = 0;
     let unidades = 0;
     let caixas = 0;
@@ -376,7 +430,7 @@ export class PainelComponent {
     });
 
     return { kg, unidades, caixas, litros };
-  });
+  }
 
   totalKgSalvos = computed(() => this.metricasDetalhadas().kg);
 
@@ -385,15 +439,5 @@ export class PainelComponent {
     return new Set(estabelecimentos).size;
   });
 
-  totalLotesAnunciados = computed(() => {
-    const usuarioAtual = this.user();
-    if (!usuarioAtual) return 0;
-
-    return (this.alimentos() || []).filter((item: any) => {
-      return item.estabelecimento === usuarioAtual.nome || 
-            String(item.estabelecimentoId) === String(usuarioAtual.id);
-    }).length;
-  });
-
-  totalEconomiaEvitada = computed(() => this.totalKgSalvos() * 8);
+  totalLotesAnunciados = computed(() => this.meusLotesCadastrados().length);
 }
