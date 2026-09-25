@@ -31,11 +31,24 @@ import { AuthService } from '../../core/services/auth.service';
           <a routerLink="/login" class="alert-link">Fazer Login →</a>
         </div>
 
-        <div *ngIf="jaReservado" class="alert-box warning">
+        <div *ngIf="item.temInteressado && souDonoDoLote" class="alert-box info-interessado">
+          <div class="info-content">
+            <div class="info-title">🙋‍♂️ Interesse Registrado!</div>
+            <p class="info-detail">
+              <strong>Nome do Interessado:</strong> {{ item.interessadoNome || 'Usuário Registrado' }}<br>
+              <span *ngIf="item.interessadoContato">
+                <strong>Contato / E-mail:</strong> {{ item.interessadoContato }}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div *ngIf="jaReservado && !souDonoDoLote" class="alert-box warning">
           <span>⚠️ Este lote já possui uma pessoa interessada.</span>
         </div>
 
         <button 
+          *ngIf="!souDonoDoLote"
           class="reserve" 
           [class.active]="demonstrouInteresse"
           [disabled]="jaReservado && !demonstrouInteresse"
@@ -90,6 +103,25 @@ import { AuthService } from '../../core/services/auth.service';
       color: #92400e;
       border: 1px solid #fcd34d;
     }
+    .alert-box.info-interessado {
+      background-color: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+      display: block;
+    }
+    .info-title {
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 6px;
+      color: #0369a1;
+    }
+    .info-detail {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #075985;
+    }
+
     .alert-link {
       color: #9b1c1c;
       font-weight: 800;
@@ -128,11 +160,21 @@ export class AlimentoDetalhesComponent implements OnInit {
     this.carregarDados();
   }
 
-  private getUsuarioIdAtual(): string | null {
+  private getUsuarioAtual(): any {
     const auth = this.authService as any;
-    const user = auth.getCurrentUser?.() || auth.getUsuarioAtual?.() || auth.usuarioAtual?.() || auth.currentUser || auth.user;
+    return auth.getCurrentUser?.() || auth.getUsuarioAtual?.() || auth.usuarioAtual?.() || auth.currentUser || auth.user;
+  }
+
+  private getUsuarioIdAtual(): string | null {
+    const user = this.getUsuarioAtual();
     if (!user) return null;
     return String(user.id || user.email);
+  }
+
+  get souDonoDoLote(): boolean {
+    const user = this.getUsuarioAtual();
+    if (!user || user.tipo !== 'estabelecimento') return false;
+    return this.alimento?.estabelecimento === user.nome || String(this.alimento?.usuarioId) === String(user.id);
   }
 
   private carregarDados(): void {
@@ -153,6 +195,14 @@ export class AlimentoDetalhesComponent implements OnInit {
           this.demonstrouInteresse = false;
           this.jaReservado = true;
         }
+
+        if (!this.alimento.interessadoNome && idInteressado) {
+          const userAtual = this.getUsuarioAtual();
+          if (userAtual && String(userAtual.id || userAtual.email) === String(idInteressado)) {
+            this.alimento.interessadoNome = userAtual.nome || userAtual.razaoSocial || userAtual.email;
+            this.alimento.interessadoContato = userAtual.telefone || userAtual.email;
+          }
+        }
       } else {
         this.demonstrouInteresse = false;
         this.jaReservado = false;
@@ -170,8 +220,12 @@ export class AlimentoDetalhesComponent implements OnInit {
 
     if (!this.alimento) return;
 
-    const uId = this.getUsuarioIdAtual();
-    if (!uId) return;
+    const user = this.getUsuarioAtual();
+    if (!user) return;
+
+    const uId = String(user.id || user.email);
+    const uNome = user.nome || user.razaoSocial || user.email || 'Usuário Registrado';
+    const uContato = user.telefone || user.email || '';
 
     if (this.demonstrouInteresse) {
       this.service.cancelarInteresse(this.alimento.id);
@@ -181,6 +235,10 @@ export class AlimentoDetalhesComponent implements OnInit {
       this.alimento.temInteressado = false;
       delete this.alimento.interessadoId;
       delete this.alimento.interessadoUsuarioId;
+      delete this.alimento.interessadoNome;
+      delete this.alimento.interessadoContato;
+
+      this.persistirAlimento();
 
     } else {
       this.service.registrarInteresse(this.alimento.id, uId);
@@ -190,6 +248,31 @@ export class AlimentoDetalhesComponent implements OnInit {
       this.alimento.temInteressado = true;
       this.alimento.interessadoId = uId;
       this.alimento.interessadoUsuarioId = uId;
+      this.alimento.interessadoNome = uNome;
+      this.alimento.interessadoContato = uContato;
+
+      this.persistirAlimento();
+    }
+  }
+
+  private persistirAlimento(): void {
+    const service = this.service as any;
+    
+    if (typeof service.atualizarAlimento === 'function') {
+      service.atualizarAlimento(this.alimento);
+    } else if (typeof service.salvar === 'function') {
+      service.salvar(this.alimento);
+    }
+
+    try {
+      const alimentosSalvos = JSON.parse(localStorage.getItem('alimentos') || '[]');
+      const index = alimentosSalvos.findIndex((a: any) => Number(a.id) === Number(this.alimento.id));
+      if (index !== -1) {
+        alimentosSalvos[index] = { ...alimentosSalvos[index], ...this.alimento };
+        localStorage.setItem('alimentos', JSON.stringify(alimentosSalvos));
+      }
+    } catch (e) {
+      console.error('Erro ao salvar no localStorage:', e);
     }
   }
 }

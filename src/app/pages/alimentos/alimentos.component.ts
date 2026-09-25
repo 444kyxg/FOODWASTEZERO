@@ -3,6 +3,7 @@ import { NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Alimento } from '../../core/models/alimento.model';
 import { AlimentoService } from '../../core/services/alimento.service';
+import { AuthService } from '../../core/services/auth.service';
 import { FoodCardComponent } from '../../shared/components/food-card/food-card.component';
 import { RouterLink } from '@angular/router';
 
@@ -18,6 +19,12 @@ import { RouterLink } from '@angular/router';
     </section>
 
     <section class="listing">
+      <div class="topo-acoes" *ngIf="isEstabelecimento">
+        <a routerLink="/estabelecimento/cadastrar-lote" class="btn-cadastrar">
+          Cadastrar Novo Lote
+        </a>
+      </div>
+
       <div class="filters">
         <input [(ngModel)]="search" placeholder="Buscar alimento ou estabelecimento...">
         <select [(ngModel)]="type">
@@ -70,6 +77,26 @@ import { RouterLink } from '@angular/router';
       max-width: 1300px;
       margin: auto;
     }
+    
+    .topo-acoes {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 20px;
+    }
+    .btn-cadastrar {
+      background: #247e40;
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .btn-cadastrar:hover {
+      background: #1d6634;
+    }
+
     .filters {
       display: grid;
       grid-template-columns: 2fr 1fr 1fr;
@@ -112,7 +139,16 @@ export class AlimentosComponent {
   type = 'todos';
   category = 'todas';
 
-  constructor(private service: AlimentoService) {}
+  constructor(
+    private service: AlimentoService,
+    private authService: AuthService
+  ) {}
+
+  get isEstabelecimento(): boolean {
+    const auth = this.authService as any;
+    const user = auth.getCurrentUser?.() || auth.getUsuarioAtual?.() || auth.usuarioAtual?.() || auth.currentUser;
+    return user?.tipo === 'estabelecimento';
+  }
 
   get alimentos(): Alimento[] {
     const dados = this.service.getAlimentos();

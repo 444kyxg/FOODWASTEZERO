@@ -83,10 +83,14 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard(['estabelecimento'])],
     children: [
       {
+        path: 'cadastrar-lote',
+        loadComponent: () => import('./pages/alimento-cadastro/alimento-cadastro.component').then(m => m.AlimentoCadastroComponent)
+      },
+      {
         path: 'perfil',
         loadComponent: () => import('./pages/perfil/perfil.component').then(m => m.PerfilComponent)
       },
-      { path: '', redirectTo: 'perfil', pathMatch: 'full' }
+      { path: '', redirectTo: 'cadastrar-lote', pathMatch: 'full' }
     ]
   },
   {

@@ -57,6 +57,13 @@ export class AlimentoService {
     this.salvarEAtualizar(listaAtualizada);
   }
 
+  excluirAlimento(id: string | number): void {
+    const lista = this.getAlimentos();
+    const novaLista = lista.filter((item: any) => item.id !== id);
+    
+    localStorage.setItem('alimentos', JSON.stringify(novaLista));
+  }
+
   private salvarEAtualizar(lista: Alimento[]): void {
     localStorage.setItem(ALIMENTOS_KEY, JSON.stringify(lista));
     this.alimentos.set(lista);

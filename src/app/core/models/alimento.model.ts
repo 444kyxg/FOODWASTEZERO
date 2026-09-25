@@ -15,4 +15,6 @@ export interface Alimento {
   temInteressado?: boolean;
   interessadoId?: string | number;
   interessadoUsuarioId?: string | number;
+  interessadoNome?: string;
+  interessadoContato?: string;
 }
