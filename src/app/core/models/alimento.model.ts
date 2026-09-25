@@ -12,4 +12,7 @@ export interface Alimento {
   preco?: number;
   imagem: string;
   urgente: boolean;
+  temInteressado?: boolean;
+  interessadoId?: string | number;
+  interessadoUsuarioId?: string | number;
 }

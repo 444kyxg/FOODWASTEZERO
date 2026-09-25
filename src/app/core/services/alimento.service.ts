@@ -23,6 +23,41 @@ export class AlimentoService {
   cadastrar(alimento: Omit<Alimento, 'id'>): void {
     const novo: Alimento = { ...alimento, id: Date.now() } as Alimento;
     const lista = [novo, ...this.alimentos()];
+    this.salvarEAtualizar(lista);
+  }
+
+  registrarInteresse(id: number, usuarioId: string | number): void {
+    const listaAtualizada = this.alimentos().map(item => {
+      if (item.id === id) {
+        return {
+          ...item,
+          temInteressado: true,
+          interessadoId: String(usuarioId),
+          interessadoUsuarioId: String(usuarioId)
+        } as any;
+      }
+      return item;
+    });
+
+    this.salvarEAtualizar(listaAtualizada);
+  }
+
+  cancelarInteresse(id: number): void {
+    const listaAtualizada = this.alimentos().map(item => {
+      if (item.id === id) {
+        const itemCopiado = { ...item } as any;
+        itemCopiado.temInteressado = false;
+        delete itemCopiado.interessadoId;
+        delete itemCopiado.interessadoUsuarioId;
+        return itemCopiado;
+      }
+      return item;
+    });
+
+    this.salvarEAtualizar(listaAtualizada);
+  }
+
+  private salvarEAtualizar(lista: Alimento[]): void {
     localStorage.setItem(ALIMENTOS_KEY, JSON.stringify(lista));
     this.alimentos.set(lista);
   }

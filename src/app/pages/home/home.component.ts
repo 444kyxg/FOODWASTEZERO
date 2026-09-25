@@ -6,7 +6,7 @@ import { Ong } from '../../core/models/ong.model';
 import { AlimentoService } from '../../core/services/alimento.service';
 import { OngService } from '../../core/services/ong.service';
 import { FoodCardComponent } from '../../shared/components/food-card/food-card.component';
-import { OngCardComponent } from '../../shared/components/ong-card/ong-card.component'; // 1. Adicionado o Import
+import { OngCardComponent } from '../../shared/components/ong-card/ong-card.component';
 
 interface Slide {
   tipo: string;
@@ -23,7 +23,7 @@ interface Slide {
     NgFor, 
     RouterLink, 
     FoodCardComponent, 
-    OngCardComponent // 2. Adicionado no array de imports
+    OngCardComponent
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']

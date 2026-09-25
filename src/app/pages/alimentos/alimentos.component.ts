@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Alimento } from '../../core/models/alimento.model';
 import { AlimentoService } from '../../core/services/alimento.service';
 import { FoodCardComponent } from '../../shared/components/food-card/food-card.component';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-alimentos',
   standalone: true,
-  imports: [NgFor, NgIf, FormsModule, FoodCardComponent],
+  imports: [NgFor, NgIf, FormsModule, FoodCardComponent, RouterLink],
   template: `
     <section class="page-head">
       <span>RESGATE ALIMENTOS EM SALVADOR</span>
@@ -113,7 +114,6 @@ export class AlimentosComponent {
 
   constructor(private service: AlimentoService) {}
 
-  // Lê diretamente o array retornado pelo serviço
   get alimentos(): Alimento[] {
     const dados = this.service.getAlimentos();
     return Array.isArray(dados) ? dados : [];

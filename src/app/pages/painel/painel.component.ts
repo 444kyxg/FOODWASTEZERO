@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { NgIf, NgSwitch, NgSwitchCase } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { AlimentoService } from '../../core/services/alimento.service';
 
 @Component({
   selector: 'app-painel',
@@ -15,23 +16,76 @@ import { AuthService } from '../../core/services/auth.service';
 
       <div [ngSwitch]="user()?.tipo" class="cards">
         <ng-container *ngSwitchCase="'ong'">
-          <div><span>Solicitações</span><b>12</b><small>lotes solicitados</small></div>
-          <div><span>Impacto</span><b>148 kg</b><small>de alimentos salvos</small></div>
-          <div><span>Parceiros</span><b>8</b><small>estabelecimentos conectados</small></div>
+          <div>
+            <span>Solicitações</span>
+            <b>{{ totalLotesSolicitados() }}</b>
+            <small>lotes solicitados</small>
+          </div>
+          <div>
+            <span>Impacto</span>
+            <b>{{ totalKgSalvos() }} kg</b>
+            <small>de alimentos salvos</small>
+          </div>
+          <div>
+            <span>Parceiros</span>
+            <b>{{ totalParceirosConectados() }}</b>
+            <small>estabelecimentos conectados</small>
+          </div>
         </ng-container>
 
         <ng-container *ngSwitchCase="'consumidor'">
-          <div><span>Conexões</span><b>12</b><small>lotes resgatados</small></div>
-          <div><span>Impacto</span><b>38 kg</b><small>de alimentos salvos</small></div>
-          <div><span>Comunidade</span><b>7</b><small>interações realizadas</small></div>
+          <div>
+            <span>Conexões</span>
+            <b>{{ totalLotesSolicitados() }}</b>
+            <small>lotes resgatados</small>
+          </div>
+          <div>
+            <span>Impacto</span>
+            <b>{{ totalKgSalvos() }} kg</b>
+            <small>de alimentos salvos</small>
+          </div>
+          <div>
+            <span>Comunidade</span>
+            <b>{{ totalLotesSolicitados() > 0 ? 1 : 0 }}</b>
+            <small>interações realizadas</small>
+          </div>
         </ng-container>
 
         <ng-container *ngSwitchCase="'estabelecimento'">
-          <div><span>Anúncios</span><b>5</b><small>lotes ativos</small></div>
-          <div><span>Doações</span><b>210 kg</b><small>doados para ONGs</small></div>
-          <div><span>Economia</span><b>R$ 1.200</b><small>evitados em descarte</small></div>
+          <div>
+            <span>Anúncios</span>
+            <b>{{ totalLotesAnunciados() }}</b>
+            <small>lotes ativos</small>
+          </div>
+          <div>
+            <span>Doações</span>
+            <b>{{ totalKgSalvos() }} kg</b>
+            <small>doados para ONGs</small>
+          </div>
+          <div>
+            <span>Economia</span>
+            <b>R$ {{ totalEconomiaEvitada() }}</b>
+            <small>evitados em descarte</small>
+          </div>
         </ng-container>
 
+        <ng-container *ngSwitchDefault>
+          <div>
+            <span>Solicitações</span>
+            <b>{{ totalLotesSolicitados() }}</b>
+            <small>lotes solicitados</small>
+          </div>
+          <div>
+            <span>Impacto</span>
+            <b>{{ totalKgSalvos() }} kg</b>
+            <small>de alimentos salvos</small>
+          </div>
+          <div>
+            <span>Parceiros</span>
+            <b>{{ totalParceirosConectados() }}</b>
+            <small>estabelecimentos conectados</small>
+          </div>
+        </ng-container>
       </div>
 
       <div class="actions">
@@ -111,5 +165,42 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class PainelComponent {
   private auth = inject(AuthService);
+  private alimentoService = inject(AlimentoService);
+
   user = this.auth.usuario;
+
+  alimentos = this.alimentoService.alimentos;
+
+  meusLotesResgatados = computed(() => {
+    const usuarioAtual = this.user();
+    if (!usuarioAtual) return [];
+    
+    const uId = String(usuarioAtual.id);
+    return (this.alimentos() || []).filter((item: any) => {
+      const interessado = item.interessadoId ?? item.interessadoUsuarioId;
+      return item.temInteressado && String(interessado) === uId;
+    });
+  });
+
+  totalLotesSolicitados = computed(() => this.meusLotesResgatados().length);
+
+  totalKgSalvos = computed(() => {
+    return this.meusLotesResgatados().reduce((acc, item: any) => {
+      const qtd = parseFloat(item.quantidade) || 0;
+      return acc + qtd;
+    }, 0);
+  });
+
+  totalParceirosConectados = computed(() => {
+    const estabelecimentos = this.meusLotesResgatados().map((item: any) => item.estabelecimento).filter(Boolean);
+    return new Set(estabelecimentos).size;
+  });
+
+  totalLotesAnunciados = computed(() => {
+    const usuarioAtual = this.user();
+    if (!usuarioAtual) return 0;
+    return (this.alimentos() || []).filter((item: any) => item.estabelecimento === usuarioAtual.nome).length;
+  });
+
+  totalEconomiaEvitada = computed(() => this.totalKgSalvos() * 8);
 }

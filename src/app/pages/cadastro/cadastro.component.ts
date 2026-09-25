@@ -34,17 +34,19 @@ import { AuthService } from '../../core/services/auth.service';
           </select>
         </label>
 
-              @if (tipo === 'estabelecimento' || tipo === 'ong') {
-        <label>CNPJ
-          <input
-            type="text"
-            name="cnpj"
-            [(ngModel)]="cnpj"
-            placeholder="00.000.000/0000-00"
-            required
-          >
-        </label>
-      }
+        @if (tipo === 'estabelecimento' || tipo === 'ong') {
+          <label>CNPJ
+            <input
+              type="text"
+              name="cnpj"
+              [(ngModel)]="cnpj"
+              (input)="onCnpjInput($event)"
+              placeholder="Digite apenas os 14 números"
+              maxlength="14"
+              required
+            >
+          </label>
+        }
 
         <label>Senha
           <input type="password" name="senha" [(ngModel)]="senha" minlength="6" required>
@@ -57,13 +59,20 @@ import { AuthService } from '../../core/services/auth.service';
 
         @if (error) { <div class="error">{{ error }}</div> }
 
-        <button class="submit">Criar conta</button>
+        <button class="submit" [disabled]="!lgpd">Criar conta</button>
         <p class="switch">Já possui conta? <a routerLink="/login">Entrar</a></p>
       </form>
     </section>
   `,
   styles: [`
-    .auth-page{min-height:calc(100vh - 76px);display:grid;grid-template-columns:1fr 1fr;background:#f4f8f4}.auth-visual{padding:10vw;background:linear-gradient(140deg,#18341f,#2b7140);color:#fff}.eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;color:#a5dfaf}.auth-visual h1{font:700 clamp(42px,5vw,66px)/1 'Space Grotesk';margin:18px 0}.auth-visual p{font-size:18px;line-height:1.6;color:#d2e3d5;max-width:480px}.auth-card{align-self:center;justify-self:center;width:min(460px,86%);background:#fff;border-radius:24px;padding:34px 38px;box-shadow:0 20px 60px #17351b12}.auth-card h2{font:700 34px 'Space Grotesk';margin:0}.muted{color:#758078}.auth-card label{display:block;font-size:13px;font-weight:700;margin:14px 0}.auth-card input:not([type=checkbox]),select{display:block;width:100%;box-sizing:border-box;padding:12px 14px;border:1px solid #d8e1da;border-radius:10px;margin-top:7px;font:inherit;background:#fff}.check{display:flex!important;gap:8px;align-items:flex-start;font-weight:400!important}.check input{margin-top:2px}.check a{color:#247b3e}.submit{width:100%;border:0;background:#247e40;color:#fff;border-radius:11px;padding:14px;font-weight:800;cursor:pointer}.error{background:#fff0ef;color:#a83d39;padding:10px;border-radius:9px;font-size:13px;margin-bottom:14px}.switch{text-align:center;font-size:13px;color:#68736b}.switch a{color:#247b3e;font-weight:700}@media(max-width:800px){.auth-page{grid-template-columns:1fr}.auth-visual{padding:55px 7vw}.auth-visual h1{font-size:45px}.auth-card{margin:40px auto}}
+    .auth-page{min-height:calc(100vh - 76px);display:grid;grid-template-columns:1fr 1fr;background:#f4f8f4}.auth-visual{padding:10vw;background:linear-gradient(140deg,#18341f,#2b7140);color:#fff}.eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;color:#a5dfaf}.auth-visual h1{font:700 clamp(42px,5vw,66px)/1 'Space Grotesk';margin:18px 0}.auth-visual p{font-size:18px;line-height:1.6;color:#d2e3d5;max-width:480px}.auth-card{align-self:center;justify-self:center;width:min(460px,86%);background:#fff;border-radius:24px;padding:34px 38px;box-shadow:0 20px 60px #17351b12}.auth-card h2{font:700 34px 'Space Grotesk';margin:0}.muted{color:#758078}.auth-card label{display:block;font-size:13px;font-weight:700;margin:14px 0}.auth-card input:not([type=checkbox]),select{display:block;width:100%;box-sizing:border-box;padding:12px 14px;border:1px solid #d8e1da;border-radius:10px;margin-top:7px;font:inherit;background:#fff}.check{display:flex!important;gap:8px;align-items:flex-start;font-weight:400!important}.check input{margin-top:2px}.check a{color:#247b3e}
+    
+    .submit{width:100%;border:0;background:#247e40;color:#fff;border-radius:11px;padding:14px;font-weight:800;cursor:pointer;transition:.2s}
+    .submit:hover:not(:disabled){background:#1d6634}
+    
+    .submit:disabled{background:#a2bba6;cursor:not-allowed;opacity:0.75}
+
+    .error{background:#fff0ef;color:#a83d39;padding:10px;border-radius:9px;font-size:13px;margin-bottom:14px}.switch{text-align:center;font-size:13px;color:#68736b}.switch a{color:#247b3e;font-weight:700}@media(max-width:800px){.auth-page{grid-template-columns:1fr}.auth-visual{padding:55px 7vw}.auth-visual h1{font-size:45px}.auth-card{margin:40px auto}}
   `]
 })
 export class CadastroComponent {
@@ -77,9 +86,22 @@ export class CadastroComponent {
 
   constructor(private auth: AuthService, private router: Router) {}
 
+  onCnpjInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.cnpj = input.value.replace(/\D/g, '');
+    input.value = this.cnpj;
+  }
+
   submit(): void {
+    this.error = '';
+
     if (!this.lgpd) {
       this.error = 'Você precisa aceitar a Política de Privacidade.';
+      return;
+    }
+
+    if ((this.tipo === 'estabelecimento' || this.tipo === 'ong') && this.cnpj.length !== 14) {
+      this.error = 'O CNPJ deve conter exatamente 14 dígitos numéricos.';
       return;
     }
 
@@ -92,9 +114,10 @@ export class CadastroComponent {
       nome: this.nome,
       email: this.email,
       senha: this.senha,
+      password: this.senha,
       tipo: this.tipo,
       cnpj: this.cnpj
-    });
+    } as any);
 
     if (!created) {
       this.error = 'Este e-mail já está cadastrado.';
