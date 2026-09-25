@@ -23,6 +23,10 @@ import { Component } from '@angular/core';
 
       <h2>5. Projeto acadêmico</h2>
       <p>Este sistema é um protótipo desenvolvido para um TCC Front-End. Em uma versão de produção, seriam necessários backend seguro, gestão formal de consentimento, controles de acesso, políticas de retenção e revisão jurídica adequada à LGPD.</p>
+      <h2>6. Como limpar seus dados</h2>
+      <p>
+        Como as informações são salvas exclusivamente no navegador, você pode apagar todos os dados armazenados a qualquer momento limpando os dados de navegação/Cache do seu navegador ou utilizando a opção de "Sair" da aplicação.
+      </p>
     </article>
   `,
   styles: [`

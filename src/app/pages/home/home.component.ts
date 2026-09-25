@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { NgFor} from '@angular/common';
+import { Component, OnInit, inject, computed } from '@angular/core';
+import { NgFor, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Alimento } from '../../core/models/alimento.model';
 import { Ong } from '../../core/models/ong.model';
@@ -20,7 +20,8 @@ interface Slide {
   selector: 'app-home',
   standalone: true,
   imports: [
-    NgFor, 
+    NgFor,
+    DecimalPipe, 
     RouterLink, 
     FoodCardComponent, 
     OngCardComponent
@@ -29,9 +30,16 @@ interface Slide {
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
+  private alimentoService = inject(AlimentoService);
+  private ongService = inject(OngService);
+
   alimentos: Alimento[] = [];
   ongs: Ong[] = [];
   slideIndex = 0;
+
+  // Base demonstrativa fixa do projeto
+  private readonly BASE_KG = 3800;
+  private readonly BASE_LOTES = 430;
 
   slides: Slide[] = [
     {
@@ -50,17 +58,35 @@ export class HomeComponent implements OnInit {
     }
   ];
 
-  constructor(
-    private alimentoService: AlimentoService,
-    private ongService: OngService
-  ) {}
+  // Métricas reativas que computam atualizações em tempo real
+  lotesResgatados = computed(() => {
+    const todosAlimentos = this.alimentoService.alimentos() || [];
+    return todosAlimentos.filter((item: any) => item.temInteressado);
+  });
+
+  totalLotesConectados = computed(() => {
+    return this.BASE_LOTES + this.lotesResgatados().length;
+  });
+
+  totalKgSalvos = computed(() => {
+    const kgNovos = this.lotesResgatados().reduce((acc: number, item: any) => {
+      const qtd = parseFloat(item.quantidade) || 0;
+      return acc + qtd;
+    }, 0);
+    return this.BASE_KG + kgNovos;
+  });
+
+  // Média estimada de 1kg = 2.5 refeições
+  totalRefeicoes = computed(() => {
+    return Math.round(this.totalKgSalvos() * 2.5);
+  });
 
   ngOnInit(): void {
-    const resAlimentos = (this.alimentoService as any).getAlimentos();
-    this.alimentos = Array.isArray(resAlimentos) ? resAlimentos : (typeof resAlimentos === 'function' ? resAlimentos() : []);
+    const resAlimentos = (this.alimentoService as any).getAlimentos?.() || this.alimentoService.alimentos();
+    this.alimentos = Array.isArray(resAlimentos) ? resAlimentos : [];
 
-    const resOngs = (this.ongService as any).getOngs();
-    this.ongs = Array.isArray(resOngs) ? resOngs : (typeof resOngs === 'function' ? resOngs() : []);
+    const resOngs = (this.ongService as any).getOngs?.() || [];
+    this.ongs = Array.isArray(resOngs) ? resOngs : [];
   }
 
   next(): void {

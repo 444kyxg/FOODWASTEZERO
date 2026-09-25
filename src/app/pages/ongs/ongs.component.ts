@@ -9,10 +9,18 @@ import { OngCardComponent } from '../../shared/components/ong-card/ong-card.comp
   standalone: true,
   imports: [NgFor, OngCardComponent],
   template: `
-    <section class="head"><span>REDE DE APOIO</span><h1>Quem transforma excedente em impacto.</h1><p>Conheça organizações parceiras e veja como a comunidade pode apoiar.</p></section>
+    <section class="head">
+      <span>REDE DE APOIO</span>
+      <h1>Quem transforma excedente em impacto.</h1>
+      <p>Conheça organizações parceiras e veja como a comunidade pode apoiar.</p>
+    </section>
     <section class="content">
-      <div class="grid"><app-ong-card *ngFor="let ong of ongs" [ong]="ong" /></div>
-      <div class="impact-note"><b>Transparência importa.</b> Nesta versão acadêmica, os números de impacto são dados simulados. Em uma versão real, as ONGs poderiam publicar prestações de contas e atualizações verificáveis.</div>
+      <div class="grid">
+        <app-ong-card *ngFor="let ong of ongs" [ong]="ong" />
+      </div>
+      <div class="impact-note">
+        <b>Transparência importa.</b> Nesta versão acadêmica, os números de impacto são dados simulados. Em uma versão real, as ONGs poderiam publicar prestações de contas e atualizações verificáveis.
+      </div>
     </section>
   `,
   styles: [`
@@ -21,6 +29,51 @@ import { OngCardComponent } from '../../shared/components/ong-card/ong-card.comp
 })
 export class OngsComponent implements OnInit {
   ongs: Ong[] = [];
+
   constructor(private service: OngService) {}
-  ngOnInit(): void { this.service.getOngs().subscribe(data => this.ongs = data); }
+
+  ngOnInit(): void {
+    this.service.getOngs().subscribe(data => {
+      const ongsCadastradas = this.obterOngsCadastradas();
+      
+      // Evita duplicados comparando IDs ou Nomes
+      const ongsUnicas = [
+        ...ongsCadastradas,
+        ...data.filter(oService => !ongsCadastradas.some(oCad => String(oCad.id) === String(oService.id) || oCad.nome === oService.nome))
+      ];
+
+      this.ongs = ongsUnicas;
+    });
+  }
+
+  private obterOngsCadastradas(): Ong[] {
+    try {
+      const usuariosStorage = localStorage.getItem('fwz_usuarios') || localStorage.getItem('usuarios');
+      if (!usuariosStorage) return [];
+
+      const usuarios: any[] = JSON.parse(usuariosStorage);
+
+      return usuarios
+        .filter((user: any) => user.tipo === 'ong')
+        .map((user: any) => {
+          const causaTexto = user.causa || user.descricao || 'Combate ao Desperdício e Fome';
+          
+          const ongObjeto: any = {
+            id: user.id || user.email,
+            nome: user.nome || user.razaoSocial || 'ONG Parceira',
+            causa: causaTexto,
+            descricao: causaTexto, // <--- Causa aplicada como descrição da ONG
+            cidade: user.cidade || user.municipio || 'Salvador',
+            bairro: user.bairro || 'Centro',
+            estado: user.estado || user.uf || 'BA',
+            contato: user.telefone || user.contato || user.email || '',
+            imagem: user.imagem || user.foto || 'assets/images/default-ong.jpg'
+          };
+          return ongObjeto as Ong;
+        });
+    } catch (e) {
+      console.error('Erro ao ler ONGs cadastradas do localStorage:', e);
+      return [];
+    }
+  }
 }

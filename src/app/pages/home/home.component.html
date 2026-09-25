@@ -8,8 +8,8 @@
       <a routerLink="/cadastro" class="btn secondary">Quero participar</a>
     </div>
     <div class="mini-impact">
-      <div><strong>3.800 kg</strong><span>salvos do descarte*</span></div>
-      <div><strong>430</strong><span>lotes conectados*</span></div>
+      <div><strong>{{ totalKgSalvos() | number:'1.0-0' }} kg</strong><span>salvos do descarte*</span></div>
+      <div><strong>{{ totalLotesConectados() | number:'1.0-0' }}</strong><span>lotes conectados*</span></div>
     </div>
   </div>
   <div class="hero-art">
@@ -49,12 +49,26 @@
   </div>
 </section>
 
+<!-- SEÇÃO DE IMPACTO ATUALIZADA -->
 <section class="impact">
-  <div><span class="eyebrow">IMPACTO EM SALVADOR</span><h2>Cada conexão conta.</h2><p>Os números abaixo são demonstrativos para a apresentação do projeto.</p></div>
+  <div>
+    <span class="eyebrow">IMPACTO EM SALVADOR</span>
+    <h2>Cada conexão conta.</h2>
+    <p>Os números abaixo são atualizados em tempo real conforme alimentos são resgatados na rede.</p>
+  </div>
   <div class="numbers">
-    <div><strong>1.250</strong><span>refeições possibilitadas</span></div>
-    <div><strong>430</strong><span>lotes conectados</span></div>
-    <div><strong>3.800 kg</strong><span>de alimentos salvos</span></div>
+    <div>
+      <strong>{{ totalRefeicoes() | number:'1.0-0' }}</strong>
+      <span>refeições possibilitadas</span>
+    </div>
+    <div>
+      <strong>{{ totalLotesConectados() | number:'1.0-0' }}</strong>
+      <span>lotes conectados</span>
+    </div>
+    <div>
+      <strong>{{ totalKgSalvos() | number:'1.0-0' }} kg</strong>
+      <span>de alimentos salvos</span>
+    </div>
   </div>
 </section>
 
@@ -73,4 +87,4 @@
   <a routerLink="/cadastro" class="btn light">Criar minha conta →</a>
 </section>
 
-<p class="disclaimer">* Dados meramente demonstrativos para fins acadêmicos.</p>
+<p class="disclaimer">* Dados em tempo real e simulados para fins do projeto.</p>

@@ -1,5 +1,5 @@
 import { Component, inject, computed } from '@angular/core';
-import { NgIf, NgSwitch, NgSwitchCase } from '@angular/common';
+import { NgIf, NgSwitch, NgSwitchCase, UpperCasePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { AlimentoService } from '../../core/services/alimento.service';
@@ -7,13 +7,39 @@ import { AlimentoService } from '../../core/services/alimento.service';
 @Component({
   selector: 'app-painel',
   standalone: true,
-  imports: [NgIf, NgSwitch, NgSwitchCase, RouterLink],
+  imports: [NgIf, NgSwitch, NgSwitchCase, UpperCasePipe, RouterLink],
   template: `
     <section class="panel">
       <span class="eyebrow">MEU PAINEL</span>
-      <h1>Olá, {{ user()?.nome || 'Usuário' }}</h1>
-      <p>Acompanhe sua participação na rede Food Waste Zero.</p>
 
+      <!-- CABEÇALHO DO PAINEL COM AVATAR, BEM-VINDO E LOCALIZAÇÃO -->
+      <div class="user-header" *ngIf="userData as u">
+        <div class="avatar-box">
+          <img 
+            *ngIf="u?.foto || u?.imagem; else avatarTexto" 
+            [src]="u?.foto || u?.imagem" 
+            alt="Foto do perfil" 
+            class="avatar-img"
+          >
+          <ng-template #avatarTexto>
+            <div class="avatar-fallback">
+              {{ (u?.nome?.[0] || 'U') | uppercase }}
+            </div>
+          </ng-template>
+        </div>
+
+        <div class="user-info">
+          <h1>Olá, {{ u?.nome || 'Usuário' }}</h1>
+          <p class="user-location" *ngIf="u?.bairro || u?.cidade">
+            {{ u?.bairro ? u?.bairro + ', ' : '' }}{{ u?.cidade || 'Salvador' }}
+          </p>
+          <span class="user-tag">{{ u?.tipo }}</span>
+        </div>
+      </div>
+
+      <p class="subtitle">Acompanhe sua participação na rede Food Waste Zero.</p>
+
+      <!-- CARDS DE METRICAS -->
       <div [ngSwitch]="user()?.tipo" class="cards">
         <ng-container *ngSwitchCase="'ong'">
           <div>
@@ -107,13 +133,57 @@ import { AlimentoService } from '../../core/services/alimento.service';
       color: #2e8247;
       font-weight: 800;
     }
-    .panel h1 {
-      font: 700 clamp(42px, 6vw, 68px) 'Space Grotesk', sans-serif;
-      margin: 15px 0 8px;
+    
+    .user-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin: 15px 0 5px;
     }
-    .panel > p {
+    .avatar-img {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #247b3e;
+    }
+    .avatar-fallback {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: #dcefdc;
+      color: #247b3e;
+      display: grid;
+      place-items: center;
+      font: 700 28px 'Space Grotesk', sans-serif;
+    }
+    
+    .user-info h1 {
+      font: 700 clamp(32px, 5vw, 52px) 'Space Grotesk', sans-serif;
+      margin: 0;
+      line-height: 1.1;
+    }
+    .user-location {
+      font-size: 14px;
+      font-weight: 700;
+      color: #2e8247;
+      margin: 4px 0 6px;
+    }
+    .user-tag {
+      display: inline-block;
+      background: #edf6ee;
+      color: #247b3e;
+      border-radius: 12px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
       color: #69746c;
       font-size: 18px;
+      margin-top: 10px;
     }
     .cards {
       display: grid;
@@ -157,6 +227,10 @@ import { AlimentoService } from '../../core/services/alimento.service';
       border-color: #247b3e;
     }
     @media (max-width: 700px) {
+      .user-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
       .cards {
         grid-template-columns: 1fr;
       }
@@ -169,6 +243,10 @@ export class PainelComponent {
 
   user = this.auth.usuario;
   alimentos = this.alimentoService.alimentos;
+
+  get userData(): any {
+    return this.user();
+  }
 
   meusLotesResgatados = computed(() => {
     const usuarioAtual = this.user();

@@ -48,6 +48,34 @@ import { AuthService } from '../../core/services/auth.service';
           </label>
         }
 
+        @if (tipo === 'ong') {
+          <label>Causa / Área de Atuação
+            <input 
+              type="text" 
+              name="causa" 
+              [(ngModel)]="causa" 
+              placeholder="Ex: Combate à Fome, Apoio Comunitário"
+            >
+          </label>
+
+          <label>Bairro
+            <input type="text" name="bairro" [(ngModel)]="bairro" placeholder="Ex: Pituba">
+          </label>
+
+          <div class="field-row">
+            <label>Cidade
+              <input type="text" name="cidade" [(ngModel)]="cidade" placeholder="Ex: Salvador">
+            </label>
+            <label class="uf-label">UF
+              <input type="text" name="estado" [(ngModel)]="estado" maxlength="2" placeholder="BA">
+            </label>
+          </div>
+
+          <label>Telefone / Contato
+            <input type="text" name="telefone" [(ngModel)]="telefone" placeholder="(71) 99999-9999">
+          </label>
+        }
+
         <label>Senha
           <input type="password" name="senha" [(ngModel)]="senha" minlength="6" required>
         </label>
@@ -66,12 +94,12 @@ import { AuthService } from '../../core/services/auth.service';
   `,
   styles: [`
     .auth-page{min-height:calc(100vh - 76px);display:grid;grid-template-columns:1fr 1fr;background:#f4f8f4}.auth-visual{padding:10vw;background:linear-gradient(140deg,#18341f,#2b7140);color:#fff}.eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;color:#a5dfaf}.auth-visual h1{font:700 clamp(42px,5vw,66px)/1 'Space Grotesk';margin:18px 0}.auth-visual p{font-size:18px;line-height:1.6;color:#d2e3d5;max-width:480px}.auth-card{align-self:center;justify-self:center;width:min(460px,86%);background:#fff;border-radius:24px;padding:34px 38px;box-shadow:0 20px 60px #17351b12}.auth-card h2{font:700 34px 'Space Grotesk';margin:0}.muted{color:#758078}.auth-card label{display:block;font-size:13px;font-weight:700;margin:14px 0}.auth-card input:not([type=checkbox]),select{display:block;width:100%;box-sizing:border-box;padding:12px 14px;border:1px solid #d8e1da;border-radius:10px;margin-top:7px;font:inherit;background:#fff}.check{display:flex!important;gap:8px;align-items:flex-start;font-weight:400!important}.check input{margin-top:2px}.check a{color:#247b3e}
-    
+    .field-row { display: flex; gap: 10px; }
+    .field-row label { flex: 1; }
+    .field-row .uf-label { max-width: 80px; }
     .submit{width:100%;border:0;background:#247e40;color:#fff;border-radius:11px;padding:14px;font-weight:800;cursor:pointer;transition:.2s}
     .submit:hover:not(:disabled){background:#1d6634}
-    
     .submit:disabled{background:#a2bba6;cursor:not-allowed;opacity:0.75}
-
     .error{background:#fff0ef;color:#a83d39;padding:10px;border-radius:9px;font-size:13px;margin-bottom:14px}.switch{text-align:center;font-size:13px;color:#68736b}.switch a{color:#247b3e;font-weight:700}@media(max-width:800px){.auth-page{grid-template-columns:1fr}.auth-visual{padding:55px 7vw}.auth-visual h1{font-size:45px}.auth-card{margin:40px auto}}
   `]
 })
@@ -82,6 +110,11 @@ export class CadastroComponent {
   tipo: 'consumidor' | 'estabelecimento' | 'ong' = 'consumidor';
   lgpd = false;
   cnpj = '';
+  causa = '';
+  bairro = '';
+  cidade = '';
+  estado = '';
+  telefone = '';
   error = '';
 
   constructor(private auth: AuthService, private router: Router) {}
@@ -114,9 +147,14 @@ export class CadastroComponent {
       nome: this.nome,
       email: this.email,
       senha: this.senha,
-      password: this.senha,
       tipo: this.tipo,
-      cnpj: this.cnpj
+      cnpj: this.cnpj,
+      causa: this.causa,
+      descricao: this.tipo === 'ong' ? this.causa : '',
+      bairro: this.bairro,
+      cidade: this.cidade || 'Salvador',
+      estado: this.estado || 'BA',
+      telefone: this.telefone
     } as any);
 
     if (!created) {
