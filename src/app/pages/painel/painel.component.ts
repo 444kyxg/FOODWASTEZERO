@@ -45,11 +45,30 @@ import { AlimentoService } from '../../core/services/alimento.service';
             <b>{{ totalLotesSolicitados() }}</b>
             <small>lotes solicitados</small>
           </div>
-          <div>
-            <span>Impacto</span>
-            <b>{{ totalKgSalvos() }} kg</b>
-            <small>de alimentos salvos</small>
+
+          <div class="impact-card">
+            <span>Impacto Resgatado</span>
+            <div class="impact-table">
+              <div class="impact-row">
+                <span class="lbl">Peso:</span>
+                <span class="val"><b>{{ metricasDetalhadas().kg }}</b> kg</span>
+              </div>
+              <div class="impact-row">
+                <span class="lbl">Qtd / Unid:</span>
+                <span class="val"><b>{{ metricasDetalhadas().unidades }}</b> un</span>
+              </div>
+              <div class="impact-row">
+                <span class="lbl">Caixas:</span>
+                <span class="val"><b>{{ metricasDetalhadas().caixas }}</b> cx</span>
+              </div>
+              <div class="impact-row">
+                <span class="lbl">Litros:</span>
+                <span class="val"><b>{{ metricasDetalhadas().litros }}</b> L</span>
+              </div>
+            </div>
+            <small>alimentos salvos do descarte</small>
           </div>
+
           <div>
             <span>Parceiros</span>
             <b>{{ totalParceirosConectados() }}</b>
@@ -63,11 +82,30 @@ import { AlimentoService } from '../../core/services/alimento.service';
             <b>{{ totalLotesSolicitados() }}</b>
             <small>lotes resgatados</small>
           </div>
-          <div>
-            <span>Impacto</span>
-            <b>{{ totalKgSalvos() }} kg</b>
-            <small>de alimentos salvos</small>
+
+          <div class="impact-card">
+            <span>Impacto Resgatado</span>
+            <div class="impact-table">
+              <div class="impact-row">
+                <span class="lbl">Peso:</span>
+                <span class="val"><b>{{ metricasDetalhadas().kg }}</b> kg</span>
+              </div>
+              <div class="impact-row">
+                <span class="lbl">Qtd / Unid:</span>
+                <span class="val"><b>{{ metricasDetalhadas().unidades }}</b> un</span>
+              </div>
+              <div class="impact-row">
+                <span class="lbl">Caixas:</span>
+                <span class="val"><b>{{ metricasDetalhadas().caixas }}</b> cx</span>
+              </div>
+              <div class="impact-row">
+                <span class="lbl">Litros:</span>
+                <span class="val"><b>{{ metricasDetalhadas().litros }}</b> L</span>
+              </div>
+            </div>
+            <small>alimentos salvos</small>
           </div>
+
           <div>
             <span>Comunidade</span>
             <b>{{ totalLotesSolicitados() > 0 ? 1 : 0 }}</b>
@@ -189,11 +227,14 @@ import { AlimentoService } from '../../core/services/alimento.service';
       gap: 20px;
       margin: 45px 0;
     }
-    .cards div {
+    .cards > div {
       background: #fff;
       padding: 25px;
       border: 1px solid #e0e9e1;
       border-radius: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
     .cards span, .cards small {
       display: block;
@@ -205,6 +246,40 @@ import { AlimentoService } from '../../core/services/alimento.service';
       color: #237b3d;
       margin: 8px 0;
     }
+
+    .impact-card {
+      background: #fff;
+    }
+    .impact-table {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 12px;
+      margin: 12px 0;
+      padding: 10px;
+      background: #f7faf7;
+      border-radius: 10px;
+      border: 1px solid #e2eee3;
+    }
+    .impact-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+    .impact-row .lbl {
+      color: #5d6860;
+      font-weight: 600;
+    }
+    .impact-row .val {
+      color: #237b3d;
+      font-weight: 700;
+    }
+    .impact-row .val b {
+      display: inline;
+      font-size: 16px;
+      margin: 0;
+    }
+
     .actions {
       display: flex;
       gap: 12px;
@@ -272,19 +347,38 @@ export class PainelComponent {
 
   totalLotesSolicitados = computed(() => this.meusLotesResgatados().length);
 
-  totalKgSalvos = computed(() => {
+  metricasDetalhadas = computed(() => {
     const usuarioAtual = this.user();
-    if (!usuarioAtual) return 0;
+    if (!usuarioAtual) return { kg: 0, unidades: 0, caixas: 0, litros: 0 };
 
-    const listaParaCalcular = usuarioAtual.tipo === 'estabelecimento' 
+    const lista = usuarioAtual.tipo === 'estabelecimento' 
       ? this.meusLotesDoados() 
       : this.meusLotesResgatados();
 
-    return listaParaCalcular.reduce((acc: number, item: any) => {
+    let kg = 0;
+    let unidades = 0;
+    let caixas = 0;
+    let litros = 0;
+
+    lista.forEach((item: any) => {
       const qtd = parseFloat(item.quantidade) || 0;
-      return acc + qtd;
-    }, 0);
+      const un = (item.unidade || item.unidadeMedida || 'kg').toLowerCase();
+
+      if (un.includes('kg') || un.includes('kilo') || un.includes('quilo')) {
+        kg += qtd;
+      } else if (un.includes('cx') || un.includes('caixa')) {
+        caixas += qtd;
+      } else if (un.includes('l') || un.includes('litro')) {
+        litros += qtd;
+      } else {
+        unidades += qtd;
+      }
+    });
+
+    return { kg, unidades, caixas, litros };
   });
+
+  totalKgSalvos = computed(() => this.metricasDetalhadas().kg);
 
   totalParceirosConectados = computed(() => {
     const estabelecimentos = this.meusLotesResgatados().map((item: any) => item.estabelecimento).filter(Boolean);
