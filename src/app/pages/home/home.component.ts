@@ -37,7 +37,6 @@ export class HomeComponent implements OnInit {
   ongs: Ong[] = [];
   slideIndex = 0;
 
-  // Base demonstrativa fixa do projeto
   private readonly BASE_KG = 3800;
   private readonly BASE_LOTES = 430;
 
@@ -58,7 +57,6 @@ export class HomeComponent implements OnInit {
     }
   ];
 
-  // Métricas reativas que computam atualizações em tempo real
   lotesResgatados = computed(() => {
     const todosAlimentos = this.alimentoService.alimentos() || [];
     return todosAlimentos.filter((item: any) => item.temInteressado);
@@ -76,7 +74,6 @@ export class HomeComponent implements OnInit {
     return this.BASE_KG + kgNovos;
   });
 
-  // Média estimada de 1kg = 2.5 refeições
   totalRefeicoes = computed(() => {
     return Math.round(this.totalKgSalvos() * 2.5);
   });

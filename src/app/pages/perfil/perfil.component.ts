@@ -174,7 +174,7 @@ export class PerfilComponent implements OnInit {
     this.user.descricao = this.novaDescricao.trim();
     
     if (this.user.tipo === 'ong') {
-      this.user.causa = this.novaDescricao.trim(); // <--- Mantém causa e descrição sincronizados no perfil da ONG
+      this.user.causa = this.novaDescricao.trim();
     }
     
     this.user.bairro = this.novoBairro.trim();

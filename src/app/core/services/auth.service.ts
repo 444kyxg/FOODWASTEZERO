@@ -14,13 +14,9 @@ export class AuthService {
 
   constructor(private router: Router) {}
 
-  /**
-   * Realiza o cadastro de novos usuários (Consumidor, Estabelecimento ou ONG)
-   */
   cadastrar(usuario: Omit<Usuario, 'id'> & { senha: string }): boolean {
     const usuarios = this.getUsuarios();
 
-    // Verifica se já existe um usuário com o mesmo e-mail
     if (usuarios.some(u => u.email === usuario.email)) {
       return false;
     }
@@ -36,15 +32,11 @@ export class AuthService {
 
     this.usuario.set(novo);
 
-    // Notifica outros componentes da atualização
     window.dispatchEvent(new Event('storage'));
 
     return true;
   }
 
-  /**
-   * Realiza a autenticação
-   */
   login(email: string, senha: string): boolean {
     const usuarios = this.getUsuarios();
     const usuarioEncontrado = usuarios.find(u => u.email === email && u.senha === senha);
@@ -56,28 +48,20 @@ export class AuthService {
     return true;
   }
 
-  /**
-   * Encerra a sessão
-   */
   logout(): void {
     localStorage.removeItem(SESSION_KEY);
     this.usuario.set(null);
     this.router.navigate(['/']);
   }
 
-  /**
-   * Atualiza a foto de perfil do usuário logado
-   */
   atualizarFotoPerfil(fotoBase64: string): void {
     const atual = this.usuario();
     if (!atual) return;
 
     const usuarioAtualizado = { ...atual, imagem: fotoBase64, foto: fotoBase64 };
 
-    // 1. Atualiza na sessão ativa
     localStorage.setItem(SESSION_KEY, JSON.stringify(usuarioAtualizado));
 
-    // 2. Atualiza na lista global de usuários
     const usuarios = this.getUsuarios();
     const index = usuarios.findIndex(u => u.id === atual.id || u.email === atual.email);
     if (index !== -1) {
@@ -85,7 +69,6 @@ export class AuthService {
       localStorage.setItem(USERS_KEY, JSON.stringify(usuarios));
     }
 
-    // 3. Atualiza o signal reativo
     this.usuario.set(usuarioAtualizado);
 
     window.dispatchEvent(new Event('storage'));

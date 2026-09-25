@@ -12,7 +12,6 @@ import { AlimentoService } from '../../core/services/alimento.service';
     <section class="panel">
       <span class="eyebrow">MEU PAINEL</span>
 
-      <!-- CABEÇALHO DO PAINEL COM AVATAR, BEM-VINDO E LOCALIZAÇÃO -->
       <div class="user-header" *ngIf="userData as u">
         <div class="avatar-box">
           <img 
@@ -39,7 +38,6 @@ import { AlimentoService } from '../../core/services/alimento.service';
 
       <p class="subtitle">Acompanhe sua participação na rede Food Waste Zero.</p>
 
-      <!-- CARDS DE METRICAS -->
       <div [ngSwitch]="user()?.tipo" class="cards">
         <ng-container *ngSwitchCase="'ong'">
           <div>

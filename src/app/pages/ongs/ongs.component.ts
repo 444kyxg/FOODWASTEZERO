@@ -36,7 +36,6 @@ export class OngsComponent implements OnInit {
     this.service.getOngs().subscribe(data => {
       const ongsCadastradas = this.obterOngsCadastradas();
       
-      // Evita duplicados comparando IDs ou Nomes
       const ongsUnicas = [
         ...ongsCadastradas,
         ...data.filter(oService => !ongsCadastradas.some(oCad => String(oCad.id) === String(oService.id) || oCad.nome === oService.nome))
@@ -62,7 +61,7 @@ export class OngsComponent implements OnInit {
             id: user.id || user.email,
             nome: user.nome || user.razaoSocial || 'ONG Parceira',
             causa: causaTexto,
-            descricao: causaTexto, // <--- Causa aplicada como descrição da ONG
+            descricao: causaTexto,
             cidade: user.cidade || user.municipio || 'Salvador',
             bairro: user.bairro || 'Centro',
             estado: user.estado || user.uf || 'BA',
