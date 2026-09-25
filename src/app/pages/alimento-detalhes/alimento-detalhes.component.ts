@@ -33,7 +33,7 @@ import { AuthService } from '../../core/services/auth.service';
 
         <div *ngIf="item.temInteressado && souDonoDoLote" class="alert-box info-interessado">
           <div class="info-content">
-            <div class="info-title">🙋‍♂️ Interesse Registrado!</div>
+            <div class="info-title">Interesse Registrado!</div>
             <p class="info-detail">
               <strong>Nome do Interessado:</strong> {{ item.interessadoNome || 'Usuário Registrado' }}<br>
               <span *ngIf="item.interessadoContato">

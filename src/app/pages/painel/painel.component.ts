@@ -168,7 +168,6 @@ export class PainelComponent {
   private alimentoService = inject(AlimentoService);
 
   user = this.auth.usuario;
-
   alimentos = this.alimentoService.alimentos;
 
   meusLotesResgatados = computed(() => {
@@ -182,10 +181,30 @@ export class PainelComponent {
     });
   });
 
+  meusLotesDoados = computed(() => {
+    const usuarioAtual = this.user();
+    if (!usuarioAtual) return [];
+
+    return (this.alimentos() || []).filter((item: any) => {
+      const pertenceAoEstabelecimento = 
+        item.estabelecimento === usuarioAtual.nome || 
+        String(item.estabelecimentoId) === String(usuarioAtual.id);
+
+      return pertenceAoEstabelecimento && item.temInteressado;
+    });
+  });
+
   totalLotesSolicitados = computed(() => this.meusLotesResgatados().length);
 
   totalKgSalvos = computed(() => {
-    return this.meusLotesResgatados().reduce((acc, item: any) => {
+    const usuarioAtual = this.user();
+    if (!usuarioAtual) return 0;
+
+    const listaParaCalcular = usuarioAtual.tipo === 'estabelecimento' 
+      ? this.meusLotesDoados() 
+      : this.meusLotesResgatados();
+
+    return listaParaCalcular.reduce((acc: number, item: any) => {
       const qtd = parseFloat(item.quantidade) || 0;
       return acc + qtd;
     }, 0);
@@ -199,7 +218,11 @@ export class PainelComponent {
   totalLotesAnunciados = computed(() => {
     const usuarioAtual = this.user();
     if (!usuarioAtual) return 0;
-    return (this.alimentos() || []).filter((item: any) => item.estabelecimento === usuarioAtual.nome).length;
+
+    return (this.alimentos() || []).filter((item: any) => {
+      return item.estabelecimento === usuarioAtual.nome || 
+            String(item.estabelecimentoId) === String(usuarioAtual.id);
+    }).length;
   });
 
   totalEconomiaEvitada = computed(() => this.totalKgSalvos() * 8);
